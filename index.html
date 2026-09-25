@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shopzy — Online Shopping for Everything (Demo)</title>
+<style>
+:root{
+  --navy:#131921; --navy2:#232f3e; --gold:#febd69; --orange:#ff9900;
+  --link:#007185; --price:#B12704; --bg:#eaeded; --line:#ddd;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Amazon Ember",Arial,Helvetica,sans-serif;background:var(--bg);color:#0f1111;font-size:14px}
+a{color:var(--link);text-decoration:none}
+a:hover{color:#c7511f;text-decoration:underline}
+button{font-family:inherit;cursor:pointer;border:none}
+img,svg{display:block}
+
+/* ---------- HEADER ---------- */
+header{position:sticky;top:0;z-index:100}
+.topbar{background:var(--navy);color:#fff;display:flex;align-items:center;gap:6px;padding:6px 14px}
+.logo{font-size:24px;font-weight:800;letter-spacing:-1px;padding:8px;border-radius:3px;border:1px solid transparent;white-space:nowrap}
+.logo span{color:var(--orange)}
+.hdr-btn{color:#fff;padding:8px;border-radius:3px;border:1px solid transparent;background:none;font-size:13px;line-height:1.2}
+.hdr-btn:hover{border-color:#fff}
+.hdr-btn small{display:block;color:#ccc;font-size:11px}
+.hdr-btn b{font-size:13.5px}
+.searchbar{flex:1;display:flex;height:40px;border-radius:4px;overflow:hidden;min-width:200px}
+.searchbar:focus-within{box-shadow:0 0 0 3px var(--gold)}
+.searchbar select{border:none;background:#e6e6e6;padding:0 8px;font-size:12px;outline:none;max-width:120px}
+.searchbar input{flex:1;border:none;padding:0 10px;font-size:15px;outline:none;min-width:60px}
+.searchbar button{background:var(--gold);width:45px;font-size:17px;color:#111}
+.searchbar button:hover{background:#f3a847}
+.cart-btn{display:flex;align-items:flex-end;position:relative;gap:2px}
+.cart-count{position:absolute;top:-4px;left:20px;color:var(--orange);font-weight:700;font-size:16px}
+.subnav{background:var(--navy2);color:#fff;display:flex;align-items:center;gap:4px;padding:0 12px;overflow-x:auto;scrollbar-width:none}
+.subnav::-webkit-scrollbar{display:none}
+.subnav button{background:none;color:#fff;padding:9px 10px;font-size:13.5px;white-space:nowrap;border:1px solid transparent;border-radius:2px}
+.subnav button:hover{border-color:#fff}
+.subnav button.active{background:#37475a;border-color:#fff}
+
+/* ---------- HERO ---------- */
+.hero{position:relative;height:300px;overflow:hidden;background:#232f3e}
+.slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;
+  color:#fff;text-align:center;opacity:0;transition:opacity .7s;padding:20px}
+.slide.on{opacity:1}
+.slide h2{font-size:34px;margin-bottom:8px}
+.slide p{font-size:16px;opacity:.9;margin-bottom:14px}
+.slide button{background:var(--orange);color:#111;font-weight:700;padding:10px 26px;border-radius:20px}
+.hero-fade{position:absolute;bottom:0;left:0;right:0;height:90px;background:linear-gradient(transparent,var(--bg))}
+
+/* ---------- LAYOUT ---------- */
+.wrap{max-width:1500px;margin:0 auto;padding:0 14px}
+.cards-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-top:-70px;position:relative;z-index:2}
+.card{background:#fff;padding:18px;border-radius:4px}
+.card h3{font-size:19px;margin-bottom:12px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{text-align:center;font-size:11.5px}
+.tile div{background:#f5f5f5;border-radius:3px;font-size:38px;padding:8px 0;margin-bottom:4px}
+.tile:hover div{background:#eee}
+
+.shop{display:grid;grid-template-columns:230px 1fr;gap:16px;margin:20px 0 40px}
+aside{background:#fff;padding:16px;border-radius:4px;align-self:start;position:sticky;top:104px}
+aside h4{font-size:15px;margin:14px 0 6px}
+aside h4:first-child{margin-top:0}
+aside label{display:block;padding:3px 0;cursor:pointer}
+aside input[type=range]{width:100%}
+.clear{background:#f0f2f2;border:1px solid #d5d9d9;border-radius:8px;padding:7px;width:100%;margin-top:16px}
+
+.toolbar{background:#fff;border-radius:4px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.toolbar select{padding:6px;border:1px solid #d5d9d9;border-radius:8px;background:#f0f2f2}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:14px;margin-top:14px}
+.p{background:#fff;border-radius:6px;padding:14px;display:flex;flex-direction:column;transition:.15s;position:relative}
+.p:hover{box-shadow:0 2px 14px rgba(0,0,0,.18)}
+.p .thumb{font-size:74px;text-align:center;padding:14px 0;cursor:pointer;user-select:none}
+.p .name{font-size:14px;line-height:1.35;margin-bottom:5px;cursor:pointer;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.p .name:hover{color:#c7511f}
+.brand{font-size:12px;color:#565959}
+.price{color:var(--price);font-size:20px;font-weight:600;margin:6px 0 2px}
+.price sup{font-size:12px;top:-.6em}
+.was{color:#565959;font-size:12px;text-decoration:line-through;margin-left:5px}
+.badge{display:inline-block;background:#232f3e;color:#fff;font-size:10px;padding:2px 6px;border-radius:3px;margin-bottom:4px}
+.deal{position:absolute;top:10px;left:0;background:#cc0c39;color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:0 3px 3px 0}
+.prime{color:#007185;font-size:12px;font-weight:700}
+.add{background:var(--gold);border-radius:20px;padding:8px;font-weight:600;margin-top:auto}
+.add:hover{background:#f3a847}
+.stars{position:relative;display:inline-block;color:#ddd;font-size:14px;letter-spacing:1px;vertical-align:-2px}
+.stars::before{content:"★★★★★"}
+.stars i{position:absolute;left:0;top:0;overflow:hidden;white-space:nowrap;color:#ffa41c}
+.stars i::before{content:"★★★★★"}
+.rc{font-size:12px;color:var(--link);margin-left:5px}
+.empty{background:#fff;padding:60px 20px;text-align:center;border-radius:4px;grid-column:1/-1}
+
+/* ---------- CART / MODAL ---------- */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);opacity:0;visibility:hidden;transition:.25s;z-index:200}
+.overlay.on{opacity:1;visibility:visible}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:400px;max-width:92vw;background:#fff;z-index:201;
+  transform:translateX(100%);transition:.3s;display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.drawer header{background:var(--navy);color:#fff;padding:14px;display:flex;justify-content:space-between;align-items:center}
+.drawer .body{flex:1;overflow:auto;padding:14px}
+.drawer .foot{border-top:1px solid var(--line);padding:14px;background:#fafafa}
+.ci{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid #eee}
+.ci .em{font-size:42px}
+.ci .t{font-size:13px;flex:1}
+.qty{display:inline-flex;align-items:center;border:1px solid #d5d9d9;border-radius:8px;margin-top:6px;overflow:hidden}
+.qty button{background:#f0f2f2;width:28px;height:28px;font-size:16px}
+.qty span{width:32px;text-align:center}
+.rm{background:none;color:var(--link);font-size:12px;margin-left:10px}
+.checkout{background:var(--orange);width:100%;padding:11px;border-radius:20px;font-weight:700;margin-top:10px}
+.ship-note{background:#e8f5e9;color:#067d62;padding:8px;border-radius:4px;font-size:12.5px;margin-bottom:10px}
+
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:202;padding:20px}
+.modal.on{display:flex}
+.sheet{background:#fff;border-radius:8px;max-width:900px;width:100%;max-height:88vh;overflow:auto;padding:24px;position:relative}
+.close{position:absolute;top:12px;right:14px;background:none;font-size:26px;line-height:1;color:#555}
+.detail{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+.detail .big{font-size:150px;text-align:center;background:#f7f7f7;border-radius:8px;padding:30px 0}
+.detail h2{font-size:24px;font-weight:500;margin-bottom:6px}
+.detail hr{border:none;border-top:1px solid #e7e7e7;margin:12px 0}
+.buy{background:var(--gold);border-radius:20px;padding:10px;width:100%;font-weight:600;margin-top:8px}
+.buy.now{background:var(--orange)}
+.field{width:100%;padding:9px;border:1px solid #888;border-radius:4px;margin-top:8px;font-size:14px;font-family:inherit}
+.done{text-align:center;padding:24px}
+.done .tick{font-size:60px}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,80px);background:#0f1111;color:#fff;
+  padding:12px 22px;border-radius:6px;z-index:300;opacity:0;transition:.3s;font-size:14px}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+footer{background:var(--navy2);color:#ddd;margin-top:30px}
+.f-top{background:#37475a;text-align:center;padding:14px;color:#fff;cursor:pointer;font-size:13px}
+.f-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:24px;padding:34px 14px;max-width:1000px;margin:0 auto}
+.f-cols h5{font-size:15px;color:#fff;margin-bottom:8px}
+.f-cols div p{color:#ddd;font-size:13px;line-height:1.9;opacity:.85}
+.f-bot{background:var(--navy);text-align:center;padding:20px;font-size:12px;color:#999}
+
+@media(max-width:900px){.shop{grid-template-columns:1fr}aside{position:static}.detail{grid-template-columns:1fr}
+  .cards-row{margin-top:14px}.hero{height:220px}.slide h2{font-size:24px}}
+@media(max-width:600px){.searchbar select,.hdr-btn.hide{display:none}.logo{font-size:20px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="topbar">
+    <div class="logo">shop<span>zy</span></div>
+    <button class="hdr-btn hide">📍<small>Deliver to</small><b>New York 10001</b></button>
+    <div class="searchbar">
+      <select id="scat"><option>All</option></select>
+      <input id="q" placeholder="Search Shopzy" autocomplete="off">
+      <button onclick="doSearch()">🔍</button>
+    </div>
+    <button class="hdr-btn hide" onclick="toast('Demo only — accounts are not implemented')"><small>Hello, sign in</small><b>Account &amp; Lists</b></button>
+    <button class="hdr-btn hide" onclick="toast('Demo only — no order history')"><small>Returns</small><b>&amp; Orders</b></button>
+    <button class="hdr-btn cart-btn" onclick="openCart()">
+      <span style="font-size:22px">🛒</span><span class="cart-count" id="cc">0</span><b>Cart</b>
+    </button>
+  </div>
+  <nav class="subnav" id="subnav"></nav>
+</header>
+
+<section class="hero" id="hero">
+  <div class="slide on" style="background:linear-gradient(120deg,#3b4a5a,#7f8fa4)">
+    <h2>Mid-Season Tech Sale</h2><p>Up to 40% off headphones, laptops &amp; smart home</p>
+    <button onclick="jump('Electronics')">Shop deals</button>
+  </div>
+  <div class="slide" style="background:linear-gradient(120deg,#4a3b52,#9b7fa4)">
+    <h2>Refresh Your Home</h2><p>Kitchen, decor and everyday essentials</p>
+    <button onclick="jump('Home')">Explore home</button>
+  </div>
+  <div class="slide" style="background:linear-gradient(120deg,#2f4f43,#7fa48f)">
+    <h2>Free 2-Day Delivery</h2><p>On eligible orders over $35 with Shopzy Prime</p>
+    <button onclick="jump('All')">Start shopping</button>
+  </div>
+  <div class="hero-fade"></div>
+</section>
+
+<div class="wrap">
+  <div class="cards-row" id="cards"></div>
+
+  <div class="shop" id="shop">
+    <aside>
+      <h4>Department</h4><div id="fcats"></div>
+      <h4>Max price: <span id="plabel">$2000</span></h4>
+      <input type="range" id="prange" min="10" max="2000" value="2000" step="10">
+      <h4>Customer rating</h4><div id="frate"></div>
+      <h4>Delivery</h4>
+      <label><input type="checkbox" id="fprime"> Prime eligible only</label>
+      <label><input type="checkbox" id="fdeal"> On sale</label>
+      <button class="clear" onclick="clearFilters()">Clear all filters</button>
+    </aside>
+
+    <main>
+      <div class="toolbar">
+        <div id="count">Showing results</div>
+        <div>Sort by:
+          <select id="sort" onchange="render()">
+            <option value="featured">Featured</option>
+            <option value="low">Price: Low to High</option>
+            <option value="high">Price: High to Low</option>
+            <option value="rating">Avg. Customer Review</option>
+            <option value="reviews">Most Reviewed</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid" id="grid"></div>
+    </main>
+  </div>
+</div>
+
+<footer>
+  <div class="f-top" onclick="scrollTo({top:0,behavior:'smooth'})">Back to top</div>
+  <div class="f-cols">
+    <div><h5>Get to Know Us</h5><p>About Shopzy<br>Careers<br>Press Releases<br>Sustainability</p></div>
+    <div><h5>Make Money</h5><p>Sell on Shopzy<br>Become an Affiliate<br>Advertise Products</p></div>
+    <div><h5>Payment</h5><p>Shopzy Card<br>Gift Cards<br>Reload Balance</p></div>
+    <div><h5>Let Us Help</h5><p>Your Account<br>Shipping Rates<br>Returns &amp; Replacements<br>Help Center</p></div>
+  </div>
+  <div class="f-bot">Shopzy — a fictional demo store. Not affiliated with any real retailer. All products, prices and reviews are made up.</div>
+</footer>
+
+<div class="overlay" id="ov" onclick="closeAll()"></div>
+
+<div class="drawer" id="cart">
+  <header><b>Shopping Cart</b><button class="close" style="position:static;color:#fff" onclick="closeAll()">×</button></header>
+  <div class="body" id="citems"></div>
+  <div class="foot">
+    <div id="shipnote"></div>
+    <div style="display:flex;justify-content:space-between;font-size:18px"><span>Subtotal</span><b id="sub">$0.00</b></div>
+    <button class="checkout" onclick="checkout()">Proceed to checkout</button>
+  </div>
+</div>
+
+<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------------- DATA ---------------- */
+const CATS=["All","Electronics","Computers","Home & Kitchen","Fashion","Books","Sports","Toys","Beauty"];
+const P=[
+ {id:1,n:"Aurora Pro Wireless Noise-Cancelling Headphones, 40H Battery",b:"Aurora Audio",c:"Electronics",p:248.99,o:349.99,r:4.6,rv:18422,pr:1,e:"🎧",d:"Hybrid active noise cancellation, 40-hour battery, multipoint Bluetooth 5.3 and plush memory-foam earcups. Includes hard travel case and USB-C fast charge."},
+ {id:2,n:"NovaBook Air 14\" Laptop, 16GB RAM, 512GB SSD",b:"Nova",c:"Computers",p:899.00,o:1099.00,r:4.5,rv:5310,pr:1,e:"💻",d:"14-inch 2.8K display, 12-core processor, all-day 18-hour battery and a 1.2 kg aluminium chassis. Ships with a 1-year limited warranty."},
+ {id:3,n:"Pulse Fit 3 Smartwatch with GPS & Heart Rate",b:"Pulse",c:"Electronics",p:129.50,o:179.00,r:4.3,rv:9877,pr:1,e:"⌚",d:"Built-in GPS, SpO2 and sleep tracking, 100+ workout modes, 7-day battery and 5ATM water resistance."},
+ {id:4,n:"EverBrew Programmable Coffee Maker, 12-Cup",b:"EverBrew",c:"Home & Kitchen",p:64.99,o:89.99,r:4.4,rv:12045,pr:1,e:"☕",d:"24-hour programmable timer, reusable gold-tone filter, keep-warm plate and pause-and-serve brewing."},
+ {id:5,n:"CloudRest Memory Foam Pillow, Set of 2",b:"CloudRest",c:"Home & Kitchen",p:39.99,o:0,r:4.2,rv:23310,pr:1,e:"🛏️",d:"Ventilated gel-infused memory foam with a removable bamboo-blend cover. Machine washable and CertiPUR certified."},
+ {id:6,n:"TrailMax 45L Hiking Backpack, Water Resistant",b:"TrailMax",c:"Sports",p:74.95,o:99.95,r:4.7,rv:3388,pr:0,e:"🎒",d:"Ripstop nylon shell, ventilated back panel, hydration sleeve, rain cover and 12 organiser pockets."},
+ {id:7,n:"The Quiet Algorithm — A Novel",b:"Harrow Press",c:"Books",p:14.29,o:22.00,r:4.8,rv:7621,pr:1,e:"📕",d:"A best-selling literary thriller about a data scientist who discovers her own life inside a dataset. 384 pages, hardcover."},
+ {id:8,n:"Zest Air Fryer 5.8QT with Digital Touchscreen",b:"Zest",c:"Home & Kitchen",p:89.00,o:129.00,r:4.5,rv:41203,pr:1,e:"🍳",d:"Eight one-touch presets, 400°F max, dishwasher-safe nonstick basket and a recipe booklet with 50 meals."},
+ {id:9,n:"Lumen 4K Ultra HD Smart TV, 55 Inch",b:"Lumen",c:"Electronics",p:429.99,o:599.99,r:4.4,rv:15633,pr:0,e:"📺",d:"4K HDR10+ panel, 120Hz game mode, Dolby Atmos audio and voice remote with built-in streaming apps."},
+ {10:0,id:10,n:"Terra Everyday Running Shoes, Unisex",b:"Terra",c:"Fashion",p:68.00,o:0,r:4.1,rv:8890,pr:1,e:"👟",d:"Breathable knit upper, responsive foam midsole and a 6mm drop designed for daily road miles."},
+ {id:11,n:"Kite & Co. Wooden Building Blocks, 120 Pieces",b:"Kite & Co.",c:"Toys",p:34.50,o:44.00,r:4.9,rv:2210,pr:1,e:"🧱",d:"Sustainably sourced beechwood blocks with non-toxic water-based paint. Ages 3+, storage bag included."},
+ {id:12,n:"Glow Theory Vitamin C Serum, 30ml",b:"Glow Theory",c:"Beauty",p:24.99,o:34.99,r:4.3,rv:19004,pr:1,e:"🧴",d:"15% L-ascorbic acid with hyaluronic acid and vitamin E. Fragrance-free, dermatologist tested."},
+ {id:13,n:"Vertex Mechanical Keyboard, Hot-Swappable RGB",b:"Vertex",c:"Computers",p:109.99,o:149.99,r:4.6,rv:6712,pr:1,e:"⌨️",d:"75% layout, gasket-mounted aluminium case, PBT double-shot keycaps and tri-mode wireless connectivity."},
+ {id:14,n:"Vertex Ergonomic Wireless Mouse, Silent Click",b:"Vertex",c:"Computers",p:32.99,o:0,r:4.2,rv:4501,pr:1,e:"🖱️",d:"Vertical 57° grip, 4000 DPI sensor, six programmable buttons and rechargeable 70-day battery."},
+ {id:15,n:"Harborline Cast Iron Skillet, 12 Inch Pre-Seasoned",b:"Harborline",c:"Home & Kitchen",p:29.90,o:0,r:4.8,rv:52117,pr:0,e:"🥘",d:"Oven safe to 500°F, works on induction, gas and open flame. Pre-seasoned with vegetable oil."},
+ {id:16,n:"Atlas Adjustable Dumbbell Set, 5–52.5 lb",b:"Atlas",c:"Sports",p:319.00,o:429.00,r:4.5,rv:2988,pr:0,e:"🏋️",d:"Replaces 15 sets of weights with a dial-a-weight system. Sold as a pair with storage trays."},
+ {id:17,n:"Deep Work Habits — Productivity Guide",b:"Northline",c:"Books",p:11.99,o:18.99,r:4.4,rv:13877,pr:1,e:"📗",d:"A practical framework for focus in a distracted world, with 30 exercises and weekly planning templates."},
+ {id:18,n:"Halcyon Merino Wool Crew Sweater",b:"Halcyon",c:"Fashion",p:79.00,o:110.00,r:4.6,rv:1744,pr:1,e:"🧥",d:"Midweight 100% extra-fine merino, naturally odour resistant and machine washable on wool cycle."},
+ {id:19,n:"Orbit Robot STEM Coding Kit for Kids",b:"Orbit",c:"Toys",p:59.99,o:79.99,r:4.4,rv:1330,pr:1,e:"🤖",d:"Drag-and-drop coding app, line following, obstacle avoidance and 20 guided build challenges. Ages 8+."},
+ {id:20,n:"SolTone Bluetooth Portable Speaker, Waterproof",b:"SolTone",c:"Electronics",p:54.99,o:79.99,r:4.5,rv:26440,pr:1,e:"🔊",d:"IP67 waterproof, 24-hour playtime, stereo pairing and a rugged strap for outdoor use."},
+ {id:21,n:"Fernleaf Ceramic Planter Set, 3 Sizes",b:"Fernleaf",c:"Home & Kitchen",p:42.00,o:0,r:4.3,rv:980,pr:0,e:"🪴",d:"Hand-glazed stoneware with drainage holes and matching bamboo saucers."},
+ {id:22,n:"Glow Theory Silk Pillowcase, Queen",b:"Glow Theory",c:"Beauty",p:36.00,o:49.00,r:4.7,rv:8123,pr:1,e:"🎀",d:"22-momme mulberry silk with hidden zipper. Gentler on hair and skin than cotton."},
+ {id:23,n:"Cascade Insulated Water Bottle, 32 oz",b:"Cascade",c:"Sports",p:27.95,o:0,r:4.6,rv:33921,pr:1,e:"🧊",d:"Double-wall vacuum steel keeps drinks cold 24 hours, hot 12. Leakproof lid, cupholder friendly."},
+ {id:24,n:"Nova 27\" QHD Monitor, 165Hz IPS",b:"Nova",c:"Computers",p:239.00,o:319.00,r:4.4,rv:5602,pr:0,e:"🖥️",d:"2560×1440 IPS panel, 1ms response, adaptive sync, height-adjustable stand and USB-C 65W power delivery."}
+];
+
+/* ---------------- STATE ---------------- */
+let state={q:"",cat:"All",max:2000,rate:0,prime:false,deal:false};
+let cart=JSON.parse(localStorage.getItem("shopzy_cart")||"{}");
+const $=id=>document.getElementById(id);
+const money=n=>"$"+n.toFixed(2);
+
+/* ---------------- BUILD UI ---------------- */
+CATS.forEach(c=>{
+  $("scat").insertAdjacentHTML("beforeend",`<option>${c}</option>`);
+  $("subnav").insertAdjacentHTML("beforeend",`<button data-c="${c}" onclick="jump('${c.replace(/'/g,"\\'")}')">${c==="All"?"All Departments":c}</button>`);
+  $("fcats").insertAdjacentHTML("beforeend",
+    `<label><input type="radio" name="fc" value="${c}" ${c==="All"?"checked":""}> ${c}</label>`);
+});
+[4,3,2,0].forEach(r=>$("frate").insertAdjacentHTML("beforeend",
+  `<label><input type="radio" name="fr" value="${r}" ${r===0?"checked":""}> ${r?stars(r)+" & up":"Any rating"}</label>`));
+
+$("cards").innerHTML=`
+ <div class="card"><h3>Shop by category</h3><div class="tiles">
+   ${[["Electronics","📱"],["Computers","💻"],["Home & Kitchen","🍽️"],["Sports","🏀"]]
+     .map(([c,e])=>`<div class="tile" onclick="jump('${c}')"><div>${e}</div>${c}</div>`).join("")}
+ </div></div>
+ <div class="card"><h3>Top deals today</h3><div class="tiles">
+   ${P.filter(x=>x.o).slice(0,4).map(x=>`<div class="tile" onclick="detail(${x.id})"><div>${x.e}</div>
+     <b style="color:#cc0c39">-${Math.round((1-x.p/x.o)*100)}%</b></div>`).join("")}
+ </div></div>
+ <div class="card"><h3>Highly rated</h3><div class="tiles">
+   ${[...P].sort((a,b)=>b.r-a.r).slice(0,4).map(x=>`<div class="tile" onclick="detail(${x.id})"><div>${x.e}</div>${x.r}★</div>`).join("")}
+ </div></div>
+ <div class="card"><h3>Sign in for the best experience</h3>
+   <p style="font-size:13px;color:#565959;margin-bottom:12px">Save items, track orders and get personalised picks.</p>
+   <button class="add" style="width:100%" onclick="toast('Demo only — accounts are not implemented')">Sign in securely</button>
+ </div>`;
+
+function stars(r){return `<span class="stars"><i style="width:${r/5*100}%"></i></span>`}
+
+/* ---------------- FILTER + RENDER ---------------- */
+function render(){
+  let list=P.filter(x=>
+    (state.cat==="All"||x.c===state.cat) &&
+    x.p<=state.max && x.r>=state.rate &&
+    (!state.prime||x.pr) && (!state.deal||x.o) &&
+    (state.q===""||(x.n+" "+x.b+" "+x.c).toLowerCase().includes(state.q))
+  );
+  const s=$("sort").value;
+  if(s==="low")list.sort((a,b)=>a.p-b.p);
+  if(s==="high")list.sort((a,b)=>b.p-a.p);
+  if(s==="rating")list.sort((a,b)=>b.r-a.r);
+  if(s==="reviews")list.sort((a,b)=>b.rv-a.rv);
+
+  $("count").innerHTML=`<b>${list.length}</b> result${list.length!==1?"s":""}${state.q?` for "<span style="color:#c45500">${state.q}</span>"`:""} in <b>${state.cat}</b>`;
+  $("grid").innerHTML = list.length ? list.map(x=>{
+    const off=x.o?Math.round((1-x.p/x.o)*100):0;
+    const[d,c]=x.p.toFixed(2).split(".");
+    return `<div class="p">
+      ${off?`<div class="deal">-${off}%</div>`:""}
+      <div class="thumb" onclick="detail(${x.id})">${x.e}</div>
+      ${x.rv>15000?'<span class="badge">Best Seller</span>':""}
+      <div class="name" onclick="detail(${x.id})">${x.n}</div>
+      <div class="brand">by ${x.b}</div>
+      <div>${stars(x.r)}<span class="rc">${x.rv.toLocaleString()}</span></div>
+      <div class="price">$${d}<sup>${c}</sup>${x.o?`<span class="was">${money(x.o)}</span>`:""}</div>
+      ${x.pr?'<div class="prime">✓ prime — FREE 2-day delivery</div>':'<div style="font-size:12px;color:#565959">Delivery $4.99</div>'}
+      <button class="add" onclick="add(${x.id})">Add to Cart</button>
+    </div>`}).join("")
+    : `<div class="empty"><h3>No results found</h3><p style="margin:8px 0 14px;color:#565959">Try different keywords or clear your filters.</p>
+       <button class="add" style="padding:8px 22px" onclick="clearFilters()">Clear filters</button></div>`;
+}
+
+/* ---------------- CART ---------------- */
+function add(id,qty=1,silent){
+  cart[id]=(cart[id]||0)+qty; save();
+  if(!silent) toast("Added to cart ✓");
+}
+function setQty(id,n){ n<=0?delete cart[id]:cart[id]=n; save(); drawCart(); }
+function save(){ localStorage.setItem("shopzy_cart",JSON.stringify(cart)); $("cc").textContent=Object.values(cart).reduce((a,b)=>a+b,0); }
+function subtotal(){ return Object.entries(cart).reduce((s,[id,q])=>s+P.find(x=>x.id==id).p*q,0); }
+
+function drawCart(){
+  const ids=Object.keys(cart);
+  $("citems").innerHTML = ids.length ? ids.map(id=>{
+    const x=P.find(p=>p.id==id), q=cart[id];
+    return `<div class="ci"><div class="em">${x.e}</div><div class="t">
+      <div>${x.n}</div><b style="color:var(--price)">${money(x.p)}</b>
+      ${x.pr?'<div class="prime">✓ prime</div>':""}
+      <div><span class="qty"><button onclick="setQty(${id},${q-1})">−</button><span>${q}</span>
+      <button onclick="setQty(${id},${q+1})">+</button></span>
+      <button class="rm" onclick="setQty(${id},0)">Delete</button></div></div></div>`}).join("")
+    : `<div style="text-align:center;padding:50px 10px"><div style="font-size:50px">🛒</div>
+       <h3 style="margin:10px 0">Your cart is empty</h3>
+       <p style="color:#565959">Add something from the store to get started.</p></div>`;
+  const st=subtotal();
+  $("sub").textContent=money(st);
+  $("shipnote").innerHTML = st===0?"" : st>=35
+    ? `<div class="ship-note">✓ Your order qualifies for FREE delivery.</div>`
+    : `<div class="ship-note">Add <b>${money(35-st)}</b> more to qualify for FREE delivery.</div>`;
+}
+
+/* ---------------- OVERLAYS ---------------- */
+function openCart(){drawCart();$("cart").classList.add("on");$("ov").classList.add("on")}
+function closeAll(){document.querySelectorAll(".on").forEach(e=>{if(e.id!=="hero"&&!e.classList.contains("slide"))e.classList.remove("on")})}
+function sheet(html){$("sheet").innerHTML=`<button class="close" onclick="closeAll()">×</button>`+html;$("modal").classList.add("on");$("ov").classList.add("on")}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(t._);t._=setTimeout(()=>t.classList.remove("on"),1900)}
+
+function detail(id){
+  const x=P.find(p=>p.id==id);
+  sheet(`<div class="detail">
+    <div class="big">${x.e}</div>
+    <div>
+      <h2>${x.n}</h2>
+      <a href="#" onclick="event.preventDefault();jump('${x.c}')">Visit the ${x.b} Store</a>
+      <div style="margin:6px 0">${stars(x.r)}<span class="rc">${x.r} · ${x.rv.toLocaleString()} ratings</span></div>
+      <hr>
+      <div class="price" style="font-size:28px">${money(x.p)}
+        ${x.o?`<span class="was" style="font-size:14px">List: ${money(x.o)}</span>`:""}</div>
+      ${x.pr?'<div class="prime">✓ prime — FREE 2-day delivery</div>':'<div style="color:#565959">Delivery $4.99</div>'}
+      <p style="color:#067d62;font-weight:600;margin:10px 0">In Stock</p>
+      <p style="line-height:1.6">${x.d}</p>
+      <hr>
+      <label>Quantity:
+        <select id="dq" class="field" style="width:80px;display:inline-block;margin-left:6px">
+          ${[1,2,3,4,5].map(n=>`<option>${n}</option>`).join("")}
+        </select></label>
+      <button class="buy" onclick="add(${x.id},+$('dq').value);closeAll()">Add to Cart</button>
+      <button class="buy now" onclick="add(${x.id},+$('dq').value,1);closeAll();checkout()">Buy Now</button>
+      <hr>
+      <p style="font-size:12.5px;color:#565959">Ships from and sold by Shopzy Demo Fulfilment · Free returns within 30 days · This is a fictional product listing.</p>
+    </div></div>`);
+}
+
+/* ---------------- CHECKOUT ---------------- */
+function checkout(){
+  if(!Object.keys(cart).length){openCart();return toast("Your cart is empty")}
+  const st=subtotal(), ship=st>=35?0:4.99, tax=st*0.0875;
+  $("cart").classList.remove("on");
+  sheet(`<h2 style="font-weight:500;margin-bottom:14px">Checkout</h2>
+   <div class="detail">
+     <div>
+       <h4>1 · Shipping address</h4>
+       <input class="field" id="ck_n" placeholder="Full name" value="Alex Demo">
+       <input class="field" id="ck_a" placeholder="Street address" value="123 Example Street">
+       <input class="field" id="ck_c" placeholder="City, State ZIP" value="New York, NY 10001">
+       <h4 style="margin-top:18px">2 · Payment method</h4>
+       <input class="field" placeholder="Card number (demo — leave as is)" value="•••• •••• •••• 4242" readonly>
+       <p style="font-size:12px;color:#565959;margin-top:6px">No real payment is processed. Nothing is sent anywhere.</p>
+     </div>
+     <div style="background:#f7f7f7;padding:18px;border-radius:8px;align-self:start">
+       <h4>Order summary</h4><hr>
+       ${Object.entries(cart).map(([id,q])=>{const x=P.find(p=>p.id==id);
+         return `<div style="display:flex;justify-content:space-between;margin:6px 0"><span>${x.e} ${x.n.slice(0,28)}… ×${q}</span><b>${money(x.p*q)}</b></div>`}).join("")}
+       <hr>
+       <div style="display:flex;justify-content:space-between"><span>Items</span><span>${money(st)}</span></div>
+       <div style="display:flex;justify-content:space-between"><span>Shipping</span><span>${ship?money(ship):"FREE"}</span></div>
+       <div style="display:flex;justify-content:space-between"><span>Est. tax</span><span>${money(tax)}</span></div>
+       <hr>
+       <div style="display:flex;justify-content:space-between;font-size:19px;color:var(--price)"><b>Order total</b><b>${money(st+ship+tax)}</b></div>
+       <button class="buy now" onclick="placeOrder(${(st+ship+tax).toFixed(2)})">Place your order</button>
+     </div></div>`);
+}
+function placeOrder(total){
+  const no="SZ-"+Math.random().toString(36).slice(2,8).toUpperCase();
+  const eta=new Date(Date.now()+2*864e5).toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
+  cart={};save();
+  sheet(`<div class="done"><div class="tick">✅</div>
+    <h2 style="margin:10px 0">Order placed — thank you!</h2>
+    <p>Order <b>${no}</b> · Total <b style="color:var(--price)">${money(total)}</b></p>
+    <p style="margin-top:8px;color:#067d62"><b>Arriving ${eta}</b></p>
+    <p style="margin:16px auto;max-width:420px;color:#565959;font-size:13px">
+      This is a demonstration store. No payment was taken, no data was transmitted and nothing will be shipped.</p>
+    <button class="add" style="padding:9px 26px" onclick="closeAll()">Continue shopping</button></div>`);
+}
+
+/* ---------------- EVENTS ---------------- */
+function doSearch(){state.q=$("q").value.trim().toLowerCase();state.cat=$("scat").value;syncUI();render();$("shop").scrollIntoView({behavior:"smooth"})}
+function jump(c){state.cat=c;state.q="";$("q").value="";syncUI();render();$("shop").scrollIntoView({behavior:"smooth"})}
+function clearFilters(){state={q:"",cat:"All",max:2000,rate:0,prime:false,deal:false};$("q").value="";
+  $("prange").value=2000;$("plabel").textContent="$2000";$("fprime").checked=$("fdeal").checked=false;
+  document.querySelector('[name=fr][value="0"]').checked=true;syncUI();render()}
+function syncUI(){
+  $("scat").value=CATS.includes(state.cat)?state.cat:"All";
+  const rb=document.querySelector(`[name=fc][value="${state.cat}"]`); if(rb)rb.checked=true;
+  document.querySelectorAll("#subnav button").forEach(b=>b.classList.toggle("active",b.dataset.c===state.cat));
+}
+$("q").addEventListener("keydown",e=>{if(e.key==="Enter")doSearch()});
+document.querySelectorAll("[name=fc]").forEach(r=>r.onchange=()=>{state.cat=r.value;syncUI();render()});
+document.querySelectorAll("[name=fr]").forEach(r=>r.onchange=()=>{state.rate=+r.value;render()});
+$("prange").oninput=e=>{state.max=+e.target.value;$("plabel").textContent="$"+e.target.value;render()};
+$("fprime").onchange=e=>{state.prime=e.target.checked;render()};
+$("fdeal").onchange=e=>{state.deal=e.target.checked;render()};
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeAll()});
+
+/* hero rotation */
+let hi=0;const slides=document.querySelectorAll(".slide");
+setInterval(()=>{slides[hi].classList.remove("on");hi=(hi+1)%slides.length;slides[hi].classList.add("on")},5000);
+
+save();syncUI();render();
+</script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
+</body>
+</html>
